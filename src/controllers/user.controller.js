@@ -8,11 +8,11 @@ import jwt from 'jsonwebtoken'
 const generateAccessAndRefreshToken = async (userID) => {
     try {
         const user = await User.findById(userID);
-        const accessToken = await user.generateAccessToken();
-        const refreshToken = await user.generateRefreshToken();
-        user.refreshToken = refreshToken;
+        const _accessToken = await user.generateAccessToken();
+        const _refreshToken = await user.generateRefreshToken();
+        user.refreshToken = _refreshToken;
         await user.save({ ValidateBeforeSave: false });
-        return { refreshToken, accessToken }
+        return { _refreshToken, _accessToken }
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating access and refresh token");
     }
@@ -115,7 +115,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!isPasswordValid) {
         throw new ApiError(401, "Invalid password");
     }
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+    const { _accessToken, _refreshToken } = await generateAccessAndRefreshToken(user._id);
     const loggedInUser = await User.findById(user._id).select('-password -refreshToken')
     const options = {
         httpOnly: true,
@@ -124,14 +124,14 @@ const loginUser = asyncHandler(async (req, res) => {
     }
     res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", _accessToken, options)
+        .cookie("refreshToken", _refreshToken, options)
         .json(new ApiResponse(
             200,
             {
                 user: loggedInUser
-                , accessToken
-                , refreshToken
+                , _accessToken
+                , _refreshToken
             }
             , "User loggedIn successfully"
         ))
@@ -190,14 +190,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             httpOnly: true,
             secure: true
         }
-        const { newRefreshToken, accessToken } = await generateAccessAndRefreshToken(user._id);
+        const { _refreshToken, _accessToken } = await generateAccessAndRefreshToken(user._id);
         return res
             .status(200)
-            .cookie("refreshToken", newRefreshToken, options)
-            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", _refreshToken, options)
+            .cookie("accessToken", _accessToken, options)
             .json(new ApiResponse(201,
                 { 
-                    accessToken, refreshToken: newRefreshToken 
+                    accessToken:_accessToken, refreshToken: _refreshToken 
                 },
                 "Access token Refreshed"
             ))
