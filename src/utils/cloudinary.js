@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { log } from 'console';
 import fs from 'fs'
+
 
 
 
@@ -18,8 +18,8 @@ const uploadOverCloudinary = async (localFilePath) => {
         if (!localFilePath) return null;
         //upload to cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: 'auto'
-        })
+            folder: 'project001',
+            resource_type: 'image'})
         // console.log(response);
         //file uploaded successfully
         fs.unlinkSync(localFilePath);
@@ -31,5 +31,20 @@ const uploadOverCloudinary = async (localFilePath) => {
 }
 
 
-export { uploadOverCloudinary };
+
+const deleteFromCloudinary = async (imageUrl) => {
+    // Extract public ID from the URL
+    const urlParts = imageUrl.split('/');
+    const publicId = urlParts[urlParts.length - 1].split('.')[0];
+
+   await cloudinary.api
+  .delete_resources([publicId], 
+    { type: 'upload', resource_type: 'image' })
+  .then(console.log);
+}
+
+
+
+
+export { uploadOverCloudinary,deleteFromCloudinary };
 
