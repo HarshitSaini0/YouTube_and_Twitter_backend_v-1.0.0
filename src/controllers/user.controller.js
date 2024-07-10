@@ -147,8 +147,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -282,7 +282,8 @@ const updateUsername = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
     try {
-        const avatarLocalPath = req.files?.avatar[0]?.path;
+        const avatarLocalPath = req.file?.path;
+        console.log(`${req}\n${avatarLocalPath}\n${req.file}\n${req.file.avatar}\n\n\n`);
         if (!avatarLocalPath) {
             throw new ApiError(400, "Please upload an image")
         }
@@ -416,12 +417,15 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
     try {
+        // console.log(req);
+        console.log(req.user);
         const user = await User.aggregate([
             {
                 $match: {
-                    _id: mongoose.Types.ObjectId(req.user?._id)
+                    _id: new mongoose.Types.ObjectId(req.user[0]?._id)
                 }
-            }, {
+            },
+            {
                 $lookup: {
                     from: "videos",
                     localField: "watchHistory",
@@ -438,6 +442,8 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
                                     {
                                         $project: {
                                             fullName: 1,
+                                            username: 1,
+                                            avatar: 1
                                         }
                                     }
                                 ]
@@ -446,7 +452,7 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
                         {
                             $addFields: {
                                 owner: {
-                                    $arrayElemAt: ["$owner", 0]
+                                    $first: "$owner"
                                 }
                             }
 
@@ -455,7 +461,14 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
                 }
             }
         ])
-        return res.status(200).json(new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully"))
+        console.log(user);
+        return res
+            .status(200)
+            .json(new ApiResponse(
+                200,
+                user[0].watchHistory,
+                "Watch history fetched successfully"
+            ))
     } catch (error) {
         throw new ApiError(500, error?.message || "Something went wrong while getting the user channel profile")
     }
