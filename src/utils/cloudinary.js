@@ -19,7 +19,8 @@ const uploadOverCloudinary = async (localFilePath) => {
         //upload to cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
             folder: 'project001',
-            resource_type: 'image'})
+            resource_type: 'auto'
+        })
         // console.log(response);
         //file uploaded successfully
         fs.unlinkSync(localFilePath);
@@ -37,14 +38,23 @@ const deleteFromCloudinary = async (imageUrl) => {
     const urlParts = imageUrl.split('/');
     const publicId = urlParts[urlParts.length - 1].split('.')[0];
 
-   await cloudinary.api
-  .delete_resources([publicId], 
-    { type: 'upload', resource_type: 'image' })
-  .then(console.log);
+    await cloudinary.api
+        .delete_resources([publicId],
+            { type: 'upload', resource_type: 'image' })
+        .then(console.log);
 }
+const deleteVideoFromCloudinary = async (imageUrl) => {
+    // Extract public ID from the URL
+    const urlParts = imageUrl.split('/');
+    const publicId = urlParts[urlParts.length - 1].split('.')[0];
+
+    await cloudinary.api
+        .delete_resources([publicId], { type: 'upload', resource_type: 'video' })
+        .then(console.log)
+        .catch(error => console.error('Error deleting resource:', error)); // Handle errors
+};
 
 
 
-
-export { uploadOverCloudinary,deleteFromCloudinary };
+export { uploadOverCloudinary, deleteFromCloudinary,deleteVideoFromCloudinary };
 

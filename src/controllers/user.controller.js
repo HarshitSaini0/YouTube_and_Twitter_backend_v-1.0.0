@@ -1,8 +1,10 @@
-import { asyncHandler } from '../utils/asyncHandler.js'
-import { ApiError } from '../utils/apiError.js'
+import { asyncHandler } from '../utils/asyncHandler.js';
+// import { ApiError } from '../utils/apiError.js';
+// import { ApiError } from '../utils/apiError.js';
+import { ApiError } from '../utils/apiError.js';
 import { User } from '../models/user.model.js'
 import { uploadOverCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js'
-import { ApiResponse } from '../utils/apiResponse.js'
+import { ApiResponse } from '../utils/ApiResponse.js';
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
@@ -283,7 +285,7 @@ const updateUsername = asyncHandler(async (req, res) => {
 const updateUserAvatar = asyncHandler(async (req, res) => {
     try {
         const avatarLocalPath = req.file?.path;
-        console.log(`${req}\n${avatarLocalPath}\n${req.file}\n${req.file.avatar}\n\n\n`);
+       
         if (!avatarLocalPath) {
             throw new ApiError(400, "Please upload an image")
         }
@@ -292,8 +294,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Error while uploading on avatar");
         }
         const urlToDelete = req.user[0]?.avatar;
-        console.log(req.user);
-        console.log(urlToDelete);
+        // console.log(req.user);
+        // console.log(urlToDelete);
         const user = await User.findByIdAndUpdate(
             req.user[0]?._id,
             {
