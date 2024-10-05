@@ -10,7 +10,7 @@
 
 ###what it is ?
 - a backed to upload/ edit/ and get videos
---thumbnail filunctionality and all
+-thumbnail filunctionality and all
 - you can tweet , comment and like the video 
 - you can edit comment,and tweet
 - you can subscribe to a channel 
